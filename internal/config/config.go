@@ -10,6 +10,7 @@ type Config struct {
 	AdminPort      string
 	DBPath         string
 	SeedFile       string
+	WebDir         string
 	RateLimitRPS   float64
 	RateLimitBurst int
 	GinMode        string
@@ -21,6 +22,7 @@ func Load() *Config {
 		AdminPort:      envOrDefault("ADMIN_PORT", "9090"),
 		DBPath:         envOrDefault("DB_PATH", "/data/wedding.db"),
 		SeedFile:       os.Getenv("SEED_FILE"),
+		WebDir:         envOrDefault("WEB_DIR", "web"),
 		RateLimitRPS:   envOrDefaultFloat("RATE_LIMIT_RPS", 1),
 		RateLimitBurst: envOrDefaultInt("RATE_LIMIT_BURST", 10),
 		GinMode:        envOrDefault("GIN_MODE", "release"),

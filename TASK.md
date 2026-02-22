@@ -26,6 +26,8 @@
 - [x] Admin server on separate port (ADMIN_PORT, default 9090)
 - [x] Unit tests for admin store methods and handler
 
+- [x] Admin UI: minimal HTML page at admin :9090/ with read/edit modes
+
 ## Discovered During Work
 
 (Add items here as they come up)

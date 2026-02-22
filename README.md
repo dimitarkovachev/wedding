@@ -18,6 +18,7 @@ internal/middleware/  Rate limiting & OpenAPI validation
 internal/store/      BBolt storage layer
 internal/config/     Environment-based configuration
 internal/seed/       Seed data loader
+web/admin/           Admin UI static HTML
 e2e/                 E2E tests (separate Go module)
 scripts/             Helper scripts
 ```
@@ -43,6 +44,8 @@ See `docs/api/openapi.yaml` for the full specification.
 
 See `docs/api/admin-openapi.yaml` for the full specification. The admin server runs on a separate port with no rate limiting or request validation.
 
+The admin server also serves a basic HTML UI at `/` for viewing and editing invites.
+
 ## Configuration
 
 All configuration is via environment variables:
@@ -53,6 +56,7 @@ All configuration is via environment variables:
 | `ADMIN_PORT`       | `9090`               | Admin API listen port          |
 | `DB_PATH`          | `/data/wedding.db`   | BBolt database file path       |
 | `SEED_FILE`        | (empty)              | JSON file to seed invites from |
+| `WEB_DIR`          | `web`                | Directory containing static web assets |
 | `GIN_MODE`         | `release`            | Gin framework mode             |
 | `RATE_LIMIT_RPS`   | `1`                  | Rate limit: requests/second    |
 | `RATE_LIMIT_BURST` | `10`                 | Rate limit: burst size         |

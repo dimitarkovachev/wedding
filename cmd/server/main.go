@@ -71,6 +71,7 @@ func main() {
 
 	adminHandler := admin.NewHandler(bboltStore)
 	admin.RegisterHandlers(adminRouter, adminHandler)
+	adminRouter.StaticFile("/", filepath.Join(cfg.WebDir, "admin", "index.html"))
 
 	adminSrv := &http.Server{
 		Handler: adminRouter,

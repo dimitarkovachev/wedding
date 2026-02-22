@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+      - "9090:9090"
     environment:
       DB_PATH: /data/wedding.db
       SEED_FILE: /data/seed.json

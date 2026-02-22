@@ -14,6 +14,9 @@ FROM alpine
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /server /server
 COPY --from=builder /go/bin/bbolt /usr/local/bin/bbolt
+COPY --from=builder /app/web /web
+
+ENV WEB_DIR=/web
 
 EXPOSE 8080 9090
 
