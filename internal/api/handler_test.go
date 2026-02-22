@@ -87,8 +87,11 @@ func TestHandler_GetInvite_Found(t *testing.T) {
 	if len(inv.People) != 2 {
 		t.Fatalf("expected 2 people, got %d", len(inv.People))
 	}
-	if inv.Accepted {
-		t.Fatal("expected accepted=false")
+	if inv.IsAccepted {
+		t.Fatal("expected isAccepted=false")
+	}
+	if inv.IsOpened {
+		t.Fatal("expected isOpened=false on first view")
 	}
 }
 
@@ -107,7 +110,7 @@ func TestHandler_GetInvite_NotFound(t *testing.T) {
 func TestHandler_PutInvite_AcceptNoAdditionals(t *testing.T) {
 	r := setupTestRouter(t)
 
-	body, _ := json.Marshal(InviteUpdate{Accepted: true})
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: true})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/invites/550e8400-e29b-41d4-a716-446655440000", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -121,8 +124,8 @@ func TestHandler_PutInvite_AcceptNoAdditionals(t *testing.T) {
 	if err := json.NewDecoder(w.Body).Decode(&inv); err != nil {
 		t.Fatalf("failed to decode: %v", err)
 	}
-	if !inv.Accepted {
-		t.Fatal("expected accepted=true")
+	if !inv.IsAccepted {
+		t.Fatal("expected isAccepted=true")
 	}
 }
 
@@ -130,7 +133,7 @@ func TestHandler_PutInvite_AcceptWithAdditionals(t *testing.T) {
 	r := setupTestRouter(t)
 
 	additional := []string{"Николай"}
-	body, _ := json.Marshal(InviteUpdate{Accepted: true, Additional: &additional})
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: true, Additional: &additional})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/invites/550e8400-e29b-41d4-a716-446655440000", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -152,7 +155,7 @@ func TestHandler_PutInvite_AcceptWithAdditionals(t *testing.T) {
 func TestHandler_PutInvite_AcceptedFalse(t *testing.T) {
 	r := setupTestRouter(t)
 
-	body, _ := json.Marshal(InviteUpdate{Accepted: false})
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: false})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/invites/550e8400-e29b-41d4-a716-446655440000", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -166,7 +169,7 @@ func TestHandler_PutInvite_AcceptedFalse(t *testing.T) {
 func TestHandler_PutInvite_NotFound(t *testing.T) {
 	r := setupTestRouter(t)
 
-	body, _ := json.Marshal(InviteUpdate{Accepted: true})
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: true})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/invites/00000000-0000-0000-0000-000000000000", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -182,7 +185,7 @@ func TestHandler_PutInvite_TooManyAdditionals(t *testing.T) {
 
 	// invite 550e...001 has AdditionalCount=0
 	additional := []string{"Иван"}
-	body, _ := json.Marshal(InviteUpdate{Accepted: true, Additional: &additional})
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: true, Additional: &additional})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPut, "/invites/550e8400-e29b-41d4-a716-446655440001", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")

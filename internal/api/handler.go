@@ -54,7 +54,7 @@ func (h *Handler) PutInvite(c *gin.Context, id openapi_types.UUID) {
 		return
 	}
 
-	if !body.Accepted {
+	if !body.IsAccepted {
 		c.JSON(http.StatusBadRequest, Error{Message: "only accepted=true updates are allowed"})
 		return
 	}
@@ -64,7 +64,7 @@ func (h *Handler) PutInvite(c *gin.Context, id openapi_types.UUID) {
 		additional = *body.Additional
 	}
 
-	rec, err := h.store.UpdateInvite(c.Request.Context(), idStr, body.Accepted, additional)
+	rec, err := h.store.UpdateInvite(c.Request.Context(), idStr, body.IsAccepted, additional)
 	if err != nil {
 		logger.WithError(err).Error("failed to update invite")
 		c.JSON(http.StatusBadRequest, Error{Message: err.Error()})
@@ -83,7 +83,8 @@ func recordToInvite(r *store.InviteRecord) Invite {
 	inv := Invite{
 		People:          r.People,
 		AdditionalCount: r.AdditionalCount,
-		Accepted:        r.Accepted,
+		IsAccepted:      r.Accepted,
+		IsOpened:        len(r.ViewedAt) > 0,
 	}
 	if len(r.Additional) > 0 {
 		inv.Additional = &r.Additional

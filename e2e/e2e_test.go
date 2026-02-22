@@ -18,11 +18,12 @@ type Invite struct {
 	People          []string `json:"people"`
 	AdditionalCount int      `json:"additionalCount"`
 	Additional      []string `json:"additional"`
-	Accepted        bool     `json:"accepted"`
+	IsAccepted      bool     `json:"isAccepted"`
+	IsOpened        bool     `json:"isOpened"`
 }
 
 type InviteUpdate struct {
-	Accepted   bool     `json:"accepted"`
+	IsAccepted bool     `json:"isAccepted"`
 	Additional []string `json:"additional,omitempty"`
 }
 
@@ -92,17 +93,36 @@ func TestGetInvite(t *testing.T) {
 	if inv.AdditionalCount != 2 {
 		t.Fatalf("expected additionalCount=2, got %d", inv.AdditionalCount)
 	}
-	if inv.Accepted {
+	if inv.IsAccepted {
 		t.Fatal("expected accepted=false for fresh invite")
 	}
 }
 
 func TestAcceptWithoutAdditionals(t *testing.T) {
-	body, _ := json.Marshal(InviteUpdate{Accepted: true})
+	// Reason: uses invite 004 which no prior test touches, so the first GET is the true first view
+	const inviteURL = "/invites/aaaa0000-0000-0000-0000-000000000004"
 
-	req, _ := http.NewRequest(http.MethodPut,
-		baseURL+"/invites/aaaa0000-0000-0000-0000-000000000001",
-		bytes.NewReader(body))
+	// GET before PUT: not accepted, not opened (first view ever)
+	preResp, err := http.Get(baseURL + inviteURL)
+	if err != nil {
+		t.Fatalf("pre-GET failed: %v", err)
+	}
+	defer preResp.Body.Close()
+
+	var pre Invite
+	if err := json.NewDecoder(preResp.Body).Decode(&pre); err != nil {
+		t.Fatalf("decode failed: %v", err)
+	}
+	if pre.IsAccepted {
+		t.Fatal("expected isAccepted=false before PUT")
+	}
+	if pre.IsOpened {
+		t.Fatal("expected isOpened=false on first view")
+	}
+
+	// PUT to accept
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: true})
+	req, _ := http.NewRequest(http.MethodPut, baseURL+inviteURL, bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -115,8 +135,8 @@ func TestAcceptWithoutAdditionals(t *testing.T) {
 		t.Fatalf("expected 200, got %d", resp.StatusCode)
 	}
 
-	// Verify via GET
-	getResp, err := http.Get(baseURL + "/invites/aaaa0000-0000-0000-0000-000000000001")
+	// GET after PUT: accepted and opened
+	getResp, err := http.Get(baseURL + inviteURL)
 	if err != nil {
 		t.Fatalf("GET failed: %v", err)
 	}
@@ -126,20 +146,41 @@ func TestAcceptWithoutAdditionals(t *testing.T) {
 	if err := json.NewDecoder(getResp.Body).Decode(&inv); err != nil {
 		t.Fatalf("decode failed: %v", err)
 	}
-	if !inv.Accepted {
-		t.Fatal("expected accepted=true after PUT")
+	if !inv.IsAccepted {
+		t.Fatal("expected isAccepted=true after PUT")
+	}
+	if !inv.IsOpened {
+		t.Fatal("expected isOpened=true after prior view")
 	}
 }
 
 func TestAcceptWithAdditionals(t *testing.T) {
+	const inviteURL = "/invites/aaaa0000-0000-0000-0000-000000000002"
+
+	// GET before PUT: not accepted, not opened (first view of invite 002)
+	preResp, err := http.Get(baseURL + inviteURL)
+	if err != nil {
+		t.Fatalf("pre-GET failed: %v", err)
+	}
+	defer preResp.Body.Close()
+
+	var pre Invite
+	if err := json.NewDecoder(preResp.Body).Decode(&pre); err != nil {
+		t.Fatalf("decode failed: %v", err)
+	}
+	if pre.IsAccepted {
+		t.Fatal("expected isAccepted=false before PUT")
+	}
+	if pre.IsOpened {
+		t.Fatal("expected isOpened=false (first view of this invite)")
+	}
+
+	// PUT to accept with additionals
 	body, _ := json.Marshal(InviteUpdate{
-		Accepted:   true,
+		IsAccepted: true,
 		Additional: []string{"Николай Георгиев", "Анна Георгиева"},
 	})
-
-	req, _ := http.NewRequest(http.MethodPut,
-		baseURL+"/invites/aaaa0000-0000-0000-0000-000000000002",
-		bytes.NewReader(body))
+	req, _ := http.NewRequest(http.MethodPut, baseURL+inviteURL, bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -152,8 +193,8 @@ func TestAcceptWithAdditionals(t *testing.T) {
 		t.Fatalf("expected 200, got %d", resp.StatusCode)
 	}
 
-	// Verify via GET
-	getResp, err := http.Get(baseURL + "/invites/aaaa0000-0000-0000-0000-000000000002")
+	// GET after PUT: accepted, opened, with additionals
+	getResp, err := http.Get(baseURL + inviteURL)
 	if err != nil {
 		t.Fatalf("GET failed: %v", err)
 	}
@@ -163,8 +204,11 @@ func TestAcceptWithAdditionals(t *testing.T) {
 	if err := json.NewDecoder(getResp.Body).Decode(&inv); err != nil {
 		t.Fatalf("decode failed: %v", err)
 	}
-	if !inv.Accepted {
-		t.Fatal("expected accepted=true")
+	if !inv.IsAccepted {
+		t.Fatal("expected isAccepted=true")
+	}
+	if !inv.IsOpened {
+		t.Fatal("expected isOpened=true after previous views")
 	}
 	if len(inv.Additional) != 2 {
 		t.Fatalf("expected 2 additional, got %d", len(inv.Additional))
@@ -190,7 +234,7 @@ func TestGetNonExistentInvite(t *testing.T) {
 
 func TestPutInvalidNamesLatin(t *testing.T) {
 	body, _ := json.Marshal(InviteUpdate{
-		Accepted:   true,
+		IsAccepted: true,
 		Additional: []string{"John Doe"},
 	})
 
@@ -212,7 +256,7 @@ func TestPutInvalidNamesLatin(t *testing.T) {
 
 func TestPutInvalidNamesNumbers(t *testing.T) {
 	body, _ := json.Marshal(InviteUpdate{
-		Accepted:   true,
+		IsAccepted: true,
 		Additional: []string{"Иван123"},
 	})
 
@@ -235,7 +279,7 @@ func TestPutInvalidNamesNumbers(t *testing.T) {
 func TestPutTooManyAdditionals(t *testing.T) {
 	// Invite 003 has additional_count=1, sending 2 should fail
 	body, _ := json.Marshal(InviteUpdate{
-		Accepted:   true,
+		IsAccepted: true,
 		Additional: []string{"Иван Петров", "Мария Петрова"},
 	})
 
@@ -256,7 +300,7 @@ func TestPutTooManyAdditionals(t *testing.T) {
 }
 
 func TestPutAcceptedFalse(t *testing.T) {
-	body, _ := json.Marshal(InviteUpdate{Accepted: false})
+	body, _ := json.Marshal(InviteUpdate{IsAccepted: false})
 
 	req, _ := http.NewRequest(http.MethodPut,
 		baseURL+"/invites/aaaa0000-0000-0000-0000-000000000003",

@@ -93,7 +93,8 @@ components:
       required:
         - people
         - additionalCount
-        - accepted
+        - isAccepted
+        - isOpened
       properties:
         people:
           type: array
@@ -108,15 +109,17 @@ components:
             type: string
             minLength: 1
             pattern: '^[\p{Cyrillic} \-]+$'
-        accepted:
+        isAccepted:
+          type: boolean
+        isOpened:
           type: boolean
 
     InviteUpdate:
       type: object
       required:
-        - accepted
+        - isAccepted
       properties:
-        accepted:
+        isAccepted:
           type: boolean
         additional:
           type: array

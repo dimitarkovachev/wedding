@@ -49,8 +49,8 @@ func TestGetInvite_Found(t *testing.T) {
 	if rec.Accepted {
 		t.Fatal("expected accepted=false")
 	}
-	if len(rec.ViewedAt) != 1 {
-		t.Fatalf("expected 1 viewed_at entry, got %d", len(rec.ViewedAt))
+	if len(rec.ViewedAt) != 0 {
+		t.Fatalf("expected 0 viewed_at entries (pre-append), got %d", len(rec.ViewedAt))
 	}
 }
 
@@ -77,9 +77,18 @@ func TestGetInvite_AppendsViewedAt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	// 3 previous GETs + this one = 4
-	if len(rec.ViewedAt) != 4 {
-		t.Fatalf("expected 4 viewed_at entries, got %d", len(rec.ViewedAt))
+	// Returned record is pre-append: 3 previous GETs already persisted
+	if len(rec.ViewedAt) != 3 {
+		t.Fatalf("expected 3 viewed_at entries (pre-append), got %d", len(rec.ViewedAt))
+	}
+
+	// Verify DB has all 4 entries by reading once more
+	rec2, err := s.GetInvite(context.Background(), "aaa-001")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(rec2.ViewedAt) != 4 {
+		t.Fatalf("expected 4 viewed_at entries persisted in DB, got %d", len(rec2.ViewedAt))
 	}
 }
 

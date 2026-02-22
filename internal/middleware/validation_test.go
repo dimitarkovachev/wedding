@@ -51,7 +51,7 @@ func TestValidation_ValidPutRequest(t *testing.T) {
 	r := setupValidationRouter(t)
 
 	body, _ := json.Marshal(map[string]any{
-		"accepted":   true,
+		"isAccepted":   true,
 		"additional": []string{"Иван Петров"},
 	})
 	w := httptest.NewRecorder()
@@ -68,7 +68,7 @@ func TestValidation_InvalidLatinNames(t *testing.T) {
 	r := setupValidationRouter(t)
 
 	body, _ := json.Marshal(map[string]any{
-		"accepted":   true,
+		"isAccepted":   true,
 		"additional": []string{"John Doe"},
 	})
 	w := httptest.NewRecorder()
@@ -85,7 +85,7 @@ func TestValidation_TooManyAdditionalItems(t *testing.T) {
 	r := setupValidationRouter(t)
 
 	body, _ := json.Marshal(map[string]any{
-		"accepted":   true,
+		"isAccepted":   true,
 		"additional": []string{"Иван Петров", "Мария Петрова", "Георги Димитров", "Елена Стоянова", "Петър Стоянов", "Ана Иванова"},
 	})
 	w := httptest.NewRecorder()

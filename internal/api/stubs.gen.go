@@ -31,16 +31,17 @@ type HealthResponse struct {
 
 // Invite defines model for Invite.
 type Invite struct {
-	Accepted        bool      `json:"accepted"`
 	Additional      *[]string `json:"additional,omitempty"`
 	AdditionalCount int       `json:"additionalCount"`
+	IsAccepted      bool      `json:"isAccepted"`
+	IsOpened        bool      `json:"isOpened"`
 	People          []string  `json:"people"`
 }
 
 // InviteUpdate defines model for InviteUpdate.
 type InviteUpdate struct {
-	Accepted   bool      `json:"accepted"`
 	Additional *[]string `json:"additional,omitempty"`
+	IsAccepted bool      `json:"isAccepted"`
 }
 
 // PutInviteJSONRequestBody defines body for PutInvite for application/json ContentType.
@@ -164,17 +165,17 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9RUTW/UMBD9K9HQG2GT0nLJrRRUVuJQgRCHbpGm8WzWJbFde1xYrfLf0Tjpx360XEqB",
-	"U6x4PO/Nm3mzgtp2zhoyHKBaQagX1GE6vvfeejk4bx151pR+dxQCNiRHXjqCCgJ7bRro+xw8XUXtSUF1",
-	"dht4nt8E2otLqhn6HD4Qtrz4RMFZE2gbJDByDL/HGON2QUzNteYdqbGuybE8v01+YW1LaOQVKqVZW4Ot",
-	"3Gumbiham49kGl5AtZ+DQ2byBir4djabudXx0uu21XWfzWavzl/uQb5JO4cOf06HbG9ub9F7XK6jHtto",
-	"+B41bZga8hLkyLqW1mhtoawn3hBrTLANl9+J8rCSX5zC/0PPjbIfqU1CtZlboaQo1F47IQsVHJ1Os7n1",
-	"WYcGG22a7AcpJV8tYqBEBaGlWVoCX8fbQars6HQKOVyTD0O2/Uk5KYW1dWTQaajgYFJODiDVvkiSFIvk",
-	"CTk2lEZAVE5IUwUVnBAPrgEpbzBOevi6LOVTW8M0zA461+o6PS0ugzC4Mbac9jzNoYIXxZ3zi9H2xYYv",
-	"k0Drwnwmf61rynTIBsKD4CF2HfolVKO1s3pB9fd0VSTJKBQrrfrHyhsdK5p47IjJB6jOVqAFV3SCHAx2",
-	"yRYK7jeZfaT8Xolz6ztkqCDGFLm5RM7/oIRjFTukG4djbqNRMgyH5eGToQ7L+mFQY/kGeK1bJ8QZmmGq",
-	"KbtYZtN3adfEHS06jc/doqtIgd9atXzi7oy7rF9fFUKx/5uTEROtcTbKZ5kNbLXKRqH/lZk8Sgv7biwl",
-	"Rf8rAAD//+VEISOpCAAA",
+	"H4sIAAAAAAAC/8xUT2/bPgz9KgZ/vf282F27i29dN3QBBqzYMOzQdIBqMY46W1IlqlsQ+LsPlNw2zp/u",
+	"0nU9mQkp8vHxkSuoTWeNRk0eqhX4eoGdiOZ754xjwzpj0ZHC+HeH3osG2aSlRajAk1O6gb7PweFNUA4l",
+	"VBf3gZf5XaC5usaaoM/hA4qWFp/RW6M9bhfxJCj4P9cY4naVmOpbRTtSCykVKaNFy78UYZfaUvoj6oYW",
+	"UB3mYAUROg0VfL+YzezqdOlU26q6z2azV5f/H0C+CSyHTvyapmxv7r3CObFk50PVUxM0rXWmNGGDjoOU",
+	"P6lrtMS93fuvjGlR6OT/ZFHv81o0tsVRU1sYx7A2yBwSbIMdIVuDsZ/2r1aKl0P+47xusLAWvN0fBys9",
+	"N5xHoq+dstwOVHByPs3mxmWd0KJRusl+opT8VUyI4CjPwBXxjODb4E10ZSfnU8jhFp1P2Q4n5aRk6Mai",
+	"FlZBBUeTcnIEkZ1FJK1YxCVis8GoKGY6VppKqOAMKa0ZcINp0+LD12XJn9powiRFYW2r6vi0uPaM4O4S",
+	"sHXgcA4V/Fc8nIpiuBPFxiJHgsbEfEF3q2rMlM8S4CQ8H7pOuCVUwy3I6gXWP6KriJShL1ZK9o+1N6w4",
+	"c+JEh4TOQ3WxAsV1mSfIQYsubpmE9TGTC5ivtTg3rhMEFYQQIzevzuVfpHDoYgd1gzjmJmjJYjguj5+s",
+	"arru+4tqQ3eFR9M6Q8qETqrG7GqZTd/F4xN2jOg8PPeIbgJ6emvk8omnM9yzfnwsGGL/L5URIqxBG+Wz",
+	"aEO0SmYD0S9Fk+lgP8iSU/S/AwAA//+7LRHC2ggAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

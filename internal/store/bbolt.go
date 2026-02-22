@@ -50,6 +50,10 @@ func (s *BBoltStore) GetInvite(_ context.Context, id string) (*InviteRecord, err
 			return fmt.Errorf("unmarshaling invite %s: %w", id, err)
 		}
 
+		// Reason: capture pre-append state so the caller sees the original ViewedAt
+		snapshot := r
+		record = &snapshot
+
 		r.ViewedAt = append(r.ViewedAt, time.Now().UTC())
 
 		updated, err := json.Marshal(r)
@@ -59,8 +63,6 @@ func (s *BBoltStore) GetInvite(_ context.Context, id string) (*InviteRecord, err
 		if err := b.Put([]byte(id), updated); err != nil {
 			return fmt.Errorf("writing viewed_at for invite %s: %w", id, err)
 		}
-
-		record = &r
 		return nil
 	})
 	if err != nil {
