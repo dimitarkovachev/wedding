@@ -7,12 +7,20 @@ RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go install go.etcd.io/bbolt/cmd/bbolt@latest
 
 FROM alpine
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /server /server
+COPY --from=builder /go/bin/bbolt /usr/local/bin/bbolt
+
+RUN mkdir -p /data && chown appuser:appgroup /data
 
 EXPOSE 8080
+
+USER appuser
 
 ENTRYPOINT ["/server"]
