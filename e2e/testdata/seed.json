@@ -1,0 +1,22 @@
+{
+  "invites": {
+    "aaaa0000-0000-0000-0000-000000000001": {
+      "people": ["Иван Петров", "Мария Петрова"],
+      "additional_count": 2,
+      "additional": [],
+      "accepted": false
+    },
+    "aaaa0000-0000-0000-0000-000000000002": {
+      "people": ["Георги Димитров"],
+      "additional_count": 3,
+      "additional": [],
+      "accepted": false
+    },
+    "aaaa0000-0000-0000-0000-000000000003": {
+      "people": ["Елена Стоянова", "Петър Стоянов"],
+      "additional_count": 1,
+      "additional": [],
+      "accepted": false
+    }
+  }
+}

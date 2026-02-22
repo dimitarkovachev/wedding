@@ -1,0 +1,64 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# IDE specific files
+.idea/
+.vscode/
+# .cursor/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Binary output directories
+bin/
+dist/
+main
+/server
+eth-fetcher.tar
+gormgen
+e2etest
+
+# Debug files
+debug/
+
+# Project specific
+tmp/
+temp/
+
+# Secrets directory
+secrets/
+
+.hypothesis/

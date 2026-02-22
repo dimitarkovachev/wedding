@@ -1,0 +1,6 @@
+.git
+.cursor
+e2e
+*.md
+scripts
+docker-compose.yaml

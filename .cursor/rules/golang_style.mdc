@@ -1,0 +1,36 @@
+---
+description: 
+globs: *.go
+alwaysApply: false
+---
+- **Use golang** as the primary language.
+
+- Enforce standard Go conventions via `golint` and `go fmt`
+
+- Use Go Modules (go.mod, go.sum) strictly.
+
+- Pin versions and avoid using replace directives unless absolutely needed.
+
+- Run go mod tidy as part of CI.
+
+- 60% test coverage minimum (unit + integration).
+
+- Use table-driven tests for logic-heavy rules.
+
+- Integrate go test ./... -cover into CI/CD.
+
+- Global logging setup using `logrus`.
+
+- No fmt.Println for debugging in production code.
+
+- Include structured logs with context (e.g., cursorID, userID)
+
+- Input validation must be centralized.
+
+- Sanitize data if user-controlled input is processed.
+
+- Avoid panic propagation — always return errors up the chain.
+
+- Use `uber fx` for APIs and `gorm` for ORM if applicable.
+
+- Never inline if statements with errors

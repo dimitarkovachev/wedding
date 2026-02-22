@@ -1,0 +1,29 @@
+---
+description: 
+globs: *.go
+alwaysApply: false
+---
+✅ Core Structure
+	•	/cmd/<appname>: Main entry point. Only minimal code (just starts the app).
+	•	/internal/...: Private code not meant for external use. Use for app logic you don’t want others importing.
+	•	/pkg/...: Public code reusable by other projects. Avoid if code isn’t meant to be shared.
+	•	/api/: API definitions (OpenAPI, gRPC, JSON schemas).
+	•	/configs/: Configuration templates (YAML, JSON, TOML).
+	•	/scripts/: Build/install/test helper scripts.
+	•	/build/: CI/CD & packaging configs (e.g. Dockerfiles, CI pipelines).
+	•	/deployments/: Deployment templates (e.g. Kubernetes, Terraform).
+	•	/test/: External test apps and test data.
+	•	/docs/: Additional documentation not covered by GoDoc.
+	•	/tools/: CLI or utilities needed by the project.
+	•	/examples/: Code examples using your libraries/app.
+	•	/vendor/: Auto-generated deps using go mod vendor.
+
+🛑 Avoid
+	•	Don’t use /src/ as a top-level directory. Not idiomatic in Go.
+	•	Don’t bloat /cmd/ — real logic belongs in internal/ or pkg/.
+
+📌 Notes
+	•	Use Go modules (go.mod). $GOPATH is no longer required.
+	•	Structure grows with project size — small projects can skip /pkg/internal.
+	•	Use internal/ for enforcement (compiler blocks external imports).
+	•	Use gofmt, staticcheck for formatting/linting.
