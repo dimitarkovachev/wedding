@@ -13,6 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 
+	"github.com/dimitarkovachev/wedding/internal/admin"
 	"github.com/dimitarkovachev/wedding/internal/api"
 	"github.com/dimitarkovachev/wedding/internal/config"
 	"github.com/dimitarkovachev/wedding/internal/middleware"
@@ -65,6 +66,17 @@ func main() {
 		Addr:    net.JoinHostPort("0.0.0.0", cfg.Port),
 	}
 
+	adminRouter := gin.New()
+	adminRouter.Use(gin.Recovery())
+
+	adminHandler := admin.NewHandler(bboltStore)
+	admin.RegisterHandlers(adminRouter, adminHandler)
+
+	adminSrv := &http.Server{
+		Handler: adminRouter,
+		Addr:    net.JoinHostPort("0.0.0.0", cfg.AdminPort),
+	}
+
 	go func() {
 		log.WithField("addr", srv.Addr).Info("starting server")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -72,12 +84,22 @@ func main() {
 		}
 	}()
 
+	go func() {
+		log.WithField("addr", adminSrv.Addr).Info("starting admin server")
+		if err := adminSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.WithError(err).Fatal("admin server error")
+		}
+	}()
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-quit
-	log.WithField("signal", fmt.Sprintf("%v", sig)).Info("shutting down server")
+	log.WithField("signal", fmt.Sprintf("%v", sig)).Info("shutting down servers")
 
 	if err := srv.Close(); err != nil {
 		log.WithError(err).Error("server close error")
+	}
+	if err := adminSrv.Close(); err != nil {
+		log.WithError(err).Error("admin server close error")
 	}
 }

@@ -19,6 +19,13 @@
 - [x] Unit tests for store, middleware, handler
 - [x] README.md
 
+- [x] Admin API OpenAPI spec (docs/api/admin-openapi.yaml)
+- [x] Admin API code generation (internal/admin/)
+- [x] BBoltStore GetAllInvites and ReplaceAllInvites methods
+- [x] Admin handler implementing admin ServerInterface
+- [x] Admin server on separate port (ADMIN_PORT, default 9090)
+- [x] Unit tests for admin store methods and handler
+
 ## Discovered During Work
 
 (Add items here as they come up)

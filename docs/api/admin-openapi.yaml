@@ -1,0 +1,97 @@
+openapi: "3.0.3"
+info:
+  title: Wedding Admin API
+  version: 1.0.0
+  description: Internal admin API for managing wedding invitation data
+
+paths:
+  /admin/invites:
+    get:
+      summary: Get all invites
+      operationId: getAdminInvites
+      responses:
+        "200":
+          description: All invites keyed by ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitesMap"
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Replace all invites
+      operationId: putAdminInvites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvitesMap"
+      responses:
+        "200":
+          description: Invites replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitesMap"
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    InvitesMap:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/InviteRecord"
+
+    InviteRecord:
+      type: object
+      required:
+        - people
+        - additional_count
+        - accepted
+      properties:
+        people:
+          type: array
+          items:
+            type: string
+        additional_count:
+          type: integer
+        additional:
+          type: array
+          items:
+            type: string
+        accepted:
+          type: boolean
+        viewed_at:
+          type: array
+          items:
+            type: string
+            format: date-time
+        accepted_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string

@@ -142,6 +142,49 @@ func (s *BBoltStore) Seed(invites map[string]InviteRecord) error {
 	})
 }
 
+func (s *BBoltStore) GetAllInvites(_ context.Context) (map[string]InviteRecord, error) {
+	result := make(map[string]InviteRecord)
+
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucketName)
+		return b.ForEach(func(k, v []byte) error {
+			var r InviteRecord
+			if err := json.Unmarshal(v, &r); err != nil {
+				return fmt.Errorf("unmarshaling invite %s: %w", string(k), err)
+			}
+			result[string(k)] = r
+			return nil
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *BBoltStore) ReplaceAllInvites(_ context.Context, invites map[string]InviteRecord) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		if err := tx.DeleteBucket(bucketName); err != nil {
+			return fmt.Errorf("deleting invites bucket: %w", err)
+		}
+		b, err := tx.CreateBucket(bucketName)
+		if err != nil {
+			return fmt.Errorf("recreating invites bucket: %w", err)
+		}
+		for id, rec := range invites {
+			data, err := json.Marshal(rec)
+			if err != nil {
+				return fmt.Errorf("marshaling invite %s: %w", id, err)
+			}
+			if err := b.Put([]byte(id), data); err != nil {
+				return fmt.Errorf("writing invite %s: %w", id, err)
+			}
+		}
+		return nil
+	})
+}
+
 func (s *BBoltStore) Close() error {
 	return s.db.Close()
 }

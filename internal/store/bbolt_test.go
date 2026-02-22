@@ -131,6 +131,80 @@ func TestUpdateInvite_TooManyAdditionals(t *testing.T) {
 	}
 }
 
+func TestGetAllInvites_Expected(t *testing.T) {
+	s := seedTestStore(t)
+
+	invites, err := s.GetAllInvites(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(invites) != 1 {
+		t.Fatalf("expected 1 invite, got %d", len(invites))
+	}
+	rec, ok := invites["aaa-001"]
+	if !ok {
+		t.Fatal("expected key aaa-001")
+	}
+	if len(rec.People) != 2 {
+		t.Fatalf("expected 2 people, got %d", len(rec.People))
+	}
+}
+
+func TestGetAllInvites_EmptyBucket(t *testing.T) {
+	s, err := NewBBoltStore(tempDBPath(t))
+	if err != nil {
+		t.Fatalf("failed to create store: %v", err)
+	}
+	t.Cleanup(func() { s.Close() })
+
+	invites, err := s.GetAllInvites(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(invites) != 0 {
+		t.Fatalf("expected 0 invites, got %d", len(invites))
+	}
+}
+
+func TestReplaceAllInvites_Expected(t *testing.T) {
+	s := seedTestStore(t)
+
+	newInvites := map[string]InviteRecord{
+		"bbb-001": {People: []string{"Нов Гост"}, AdditionalCount: 1, Accepted: false},
+		"bbb-002": {People: []string{"Друг Гост"}, AdditionalCount: 0, Accepted: true},
+	}
+	if err := s.ReplaceAllInvites(context.Background(), newInvites); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	invites, err := s.GetAllInvites(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(invites) != 2 {
+		t.Fatalf("expected 2 invites, got %d", len(invites))
+	}
+	if _, ok := invites["aaa-001"]; ok {
+		t.Fatal("old invite aaa-001 should have been removed")
+	}
+}
+
+func TestReplaceAllInvites_EmptyMap(t *testing.T) {
+	s := seedTestStore(t)
+
+	if err := s.ReplaceAllInvites(context.Background(), map[string]InviteRecord{}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	invites, err := s.GetAllInvites(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(invites) != 0 {
+		t.Fatalf("expected 0 invites after empty replace, got %d", len(invites))
+	}
+}
+
 func TestNewBBoltStore_InvalidPath(t *testing.T) {
 	_, err := NewBBoltStore(filepath.Join(os.DevNull, "impossible", "path.db"))
 	if err == nil {

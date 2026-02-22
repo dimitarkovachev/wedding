@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	Port           string
+	AdminPort      string
 	DBPath         string
 	SeedFile       string
 	RateLimitRPS   float64
@@ -17,6 +18,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		Port:           envOrDefault("PORT", "8080"),
+		AdminPort:      envOrDefault("ADMIN_PORT", "9090"),
 		DBPath:         envOrDefault("DB_PATH", "/data/wedding.db"),
 		SeedFile:       os.Getenv("SEED_FILE"),
 		RateLimitRPS:   envOrDefaultFloat("RATE_LIMIT_RPS", 1),

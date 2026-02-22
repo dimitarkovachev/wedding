@@ -1,0 +1,8 @@
+package: admin
+output: stubs.gen.go
+generate:
+  models: true
+  gin-server: true
+  embedded-spec: true
+output-options:
+  skip-prune: true

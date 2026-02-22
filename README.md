@@ -11,8 +11,9 @@ Go/Gin HTTP API for managing wedding invitations, backed by BBolt embedded stora
 
 ```
 cmd/server/          Entry point
-docs/api/            OpenAPI 3.0 spec
-internal/api/        Generated server stubs + handler
+docs/api/            OpenAPI 3.0 specs (public + admin)
+internal/api/        Generated server stubs + handler (public API)
+internal/admin/      Generated server stubs + handler (admin API)
 internal/middleware/  Rate limiting & OpenAPI validation
 internal/store/      BBolt storage layer
 internal/config/     Environment-based configuration
@@ -23,6 +24,8 @@ scripts/             Helper scripts
 
 ## API Endpoints
 
+### Public API (default port 8080)
+
 | Method | Path             | Description          |
 |--------|------------------|----------------------|
 | GET    | `/health`        | Health check         |
@@ -31,13 +34,23 @@ scripts/             Helper scripts
 
 See `docs/api/openapi.yaml` for the full specification.
 
+### Admin API (default port 9090)
+
+| Method | Path              | Description                              |
+|--------|-------------------|------------------------------------------|
+| GET    | `/admin/invites`  | Dump all invites from the database       |
+| PUT    | `/admin/invites`  | Replace all invites in the database      |
+
+See `docs/api/admin-openapi.yaml` for the full specification. The admin server runs on a separate port with no rate limiting or request validation.
+
 ## Configuration
 
 All configuration is via environment variables:
 
 | Variable           | Default              | Description                    |
 |--------------------|----------------------|--------------------------------|
-| `PORT`             | `8080`               | Server listen port             |
+| `PORT`             | `8080`               | Public API listen port         |
+| `ADMIN_PORT`       | `9090`               | Admin API listen port          |
 | `DB_PATH`          | `/data/wedding.db`   | BBolt database file path       |
 | `SEED_FILE`        | (empty)              | JSON file to seed invites from |
 | `GIN_MODE`         | `release`            | Gin framework mode             |
@@ -48,10 +61,10 @@ All configuration is via environment variables:
 
 ### Code Generation
 
-Regenerate server stubs from the OpenAPI spec:
+Regenerate server stubs from the OpenAPI specs:
 
 ```bash
-go generate ./internal/api/...
+go generate ./internal/api/... ./internal/admin/...
 ```
 
 ### Run Locally
@@ -77,7 +90,7 @@ docker build -t wedding-api .
 ### Run
 
 ```bash
-docker run -p 8080:8080 -v wedding-data:/data wedding-api
+docker run -p 8080:8080 -p 9090:9090 -v wedding-data:/data wedding-api
 ```
 
 ## E2E Tests
